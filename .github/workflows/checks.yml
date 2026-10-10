@@ -1,0 +1,26 @@
+name: Frontend checks
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      STRAPI_API_URL: https://api.omerali.dev
+      SITE_URL: https://omerali.dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test:projects
+      - run: npx tsc --noEmit
+      - run: npm run build
