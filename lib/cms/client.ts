@@ -11,4 +11,3 @@ export async function getContent<K extends keyof ContentTypes>(type: K, locale: 
  const result = await response.json() as { data: ContentTypes[K] | null };
  return result.data;
 }
-export async function getProjects(locale: Locale) { return await getContent("projects", locale, { "populate[technologies]": "true", "populate[coverImage]": "true", sort: "displayOrder:asc" }) ?? []; }
