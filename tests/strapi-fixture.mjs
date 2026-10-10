@@ -13,8 +13,9 @@ const server=http.createServer((req,res)=>{
  if(mode==='outage'){res.writeHead(503);res.end('{}');return;}
  if(mode==='malformed'){res.end(JSON.stringify({data:'invalid'}));return;}
  const locale=url.searchParams.get('locale');
- let rows=mode==='empty'?[]:data.map(p=>locale==='ar'?{...p,locale:'ar',title:`مشروع اختبار ${p.displayOrder}`,shortDescription:'بيانات اختبار مصطنعة وليست محتوى للمحفظة.',localizations:[{locale:'en',slug:p.slug,publishedAt:'2026-01-01'}]}:p);
+ let rows=mode==='empty'?[]:data.map(p=>locale==='ar'?{...p,locale:'ar',slug:mode==='different-slugs'?`ar-${p.slug}`:p.slug,title:`مشروع اختبار ${p.displayOrder}`,shortDescription:'بيانات اختبار مصطنعة وليست محتوى للمحفظة.',localizations:[{locale:'en',slug:p.slug,publishedAt:'2026-01-01'}]}:p);
  const slug=url.searchParams.get('filters[slug][$eq]');if(slug)rows=rows.filter(p=>p.slug===slug);
+ const documentId=url.searchParams.get('filters[documentId][$eq]');if(documentId)rows=rows.filter(p=>p.documentId===documentId);
  const type=url.searchParams.get('filters[projectType][$eq]');if(type)rows=rows.filter(p=>p.projectType===type);
  if(url.searchParams.get('filters[featured][$eq]')==='true')rows=rows.filter(p=>p.featured);
  const exclude=url.searchParams.get('filters[documentId][$ne]');if(exclude)rows=rows.filter(p=>p.documentId!==exclude);

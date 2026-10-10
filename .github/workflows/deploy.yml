@@ -32,6 +32,9 @@ jobs:
         run: npm ci
 
       - name: Build Next.js
+        env:
+          STRAPI_API_URL: https://api.omerali.dev
+          SITE_URL: https://omerali.dev
         run: npm run build
 
       - name: Prepare deployment package
@@ -44,6 +47,8 @@ jobs:
           if [ -d public ]; then
             cp -a public release/public
           fi
+
+          printf '%s\n' "$GITHUB_SHA" > release/DEPLOYED_COMMIT
 
           tar -czf nextjs-release.tar.gz -C release .
 
@@ -71,13 +76,22 @@ jobs:
             rm nextjs-release.tar.gz
 
             if pm2 describe omerali-web > /dev/null 2>&1; then
-              PORT=3000 HOSTNAME=127.0.0.1 \
+              STRAPI_API_URL=https://api.omerali.dev SITE_URL=https://omerali.dev PORT=3000 HOSTNAME=127.0.0.1 \
                 pm2 restart omerali-web --update-env
             else
-              PORT=3000 HOSTNAME=127.0.0.1 \
+              STRAPI_API_URL=https://api.omerali.dev SITE_URL=https://omerali.dev PORT=3000 HOSTNAME=127.0.0.1 \
                 pm2 start server.js --name omerali-web
             fi
 
             pm2 save
 
-            echo "Next.js deployment completed!"
+            for attempt in 1 2 3 4 5 6; do
+              if curl --fail --silent --show-error --output /dev/null http://127.0.0.1:3000/en; then
+                echo "Next.js health check passed"
+                exit 0
+              fi
+              sleep 5
+            done
+
+            echo "Next.js health check failed"
+            exit 1

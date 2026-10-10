@@ -5,7 +5,7 @@ import { isLocale } from "@/lib/i18n";
 import { getProject, getRelatedProjects } from "@/lib/cms/projects";
 import { siteOrigin } from "@/lib/cms/urls";
 import { getProjectMessages } from "@/lib/content/projects";
-import { ProjectImage, ProjectShowcase, TechnologyLabels } from "@/components/project-showcase";
+import { ProjectImage, ProjectPlaceholder, ProjectShowcase, TechnologyLabels } from "@/components/project-showcase";
 import { ProjectRichText, hasBlocks } from "@/components/project-rich-text";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -31,7 +31,7 @@ export default async function ProjectDetail({ params }: Props) {
   return <main id="main" className="projects-page case-study">
     <nav className="project-breadcrumbs" aria-label={locale === "ar" ? "مسار التنقل" : "Breadcrumb"}><Link href={`/${locale}`}>{t.home}</Link><span aria-hidden="true">/</span><Link href={`/${locale}/projects`}>{t.heading}</Link><span aria-hidden="true">/</span><span>{project.title}</span></nav>
     <header className="case-heading"><p className="eyebrow">{t.types[project.projectType]}</p><h1>{project.title}</h1>{project.shortDescription && <p className="case-introduction">{project.shortDescription}</p>}<TechnologyLabels project={project}/><dl className="case-facts">{project.myRole && <div><dt>{t.role}</dt><dd>{project.myRole}</dd></div>}{project.projectYear && <div><dt>{t.year}</dt><dd>{new Intl.NumberFormat(locale, { useGrouping: false }).format(project.projectYear)}</dd></div>}{project.clientName && <div><dt>{t.client}</dt><dd>{project.clientName}</dd></div>}</dl></header>
-    {project.coverImage && <figure className="case-cover"><ProjectImage image={project.coverImage} title={project.title} priority/></figure>}
+    <figure className="case-cover">{project.coverImage ? <ProjectImage image={project.coverImage} title={project.title} priority/> : <ProjectPlaceholder project={project} locale={locale}/>}</figure>
     {sections.filter(section => hasBlocks(section.blocks)).map(section => <section key={section.title} className="case-section"><h2>{section.title}</h2><ProjectRichText blocks={section.blocks}/></section>)}
     {project.features.length > 0 && <section className="case-section"><h2>{t.features}</h2><ol className="case-features">{project.features.map((feature,index) => <li key={index}><h3>{feature.title}</h3>{feature.description && <p>{feature.description}</p>}</li>)}</ol></section>}
     {(project.myRole || project.responsibilities.length > 0) && <section className="case-section"><h2>{t.contribution}</h2><div>{project.myRole && <p>{project.myRole}</p>}{project.responsibilities.length > 0 && <ul className="case-responsibilities">{project.responsibilities.map((responsibility,index) => <li key={index}>{responsibility.description}</li>)}</ul>}</div></section>}

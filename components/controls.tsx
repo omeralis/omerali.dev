@@ -8,7 +8,7 @@ export function LanguageSwitch({ locale }: { locale: Locale }) {
  const target = pathname.replace(/^\/(en|ar)(?=\/|$)/, `/${next}`);
  return <a className="control" href={target} lang={next} hrefLang={next} onClick={event => {
    const alternate = pathname.includes("/projects/") ? document.querySelector<HTMLLinkElement>(`link[rel="alternate"][hreflang="${next}"]`) : null;
-   const localizedTarget = alternate ? new URL(alternate.href).pathname : target;
+   const localizedTarget = alternate ? new URL(alternate.href).pathname : pathname.includes("/projects/") ? `/${next}/projects` : target;
    event.currentTarget.href = `${localizedTarget}${window.location.search}${window.location.hash}`;
  }}>{next === "ar" ? "العربية" : "English"}</a>;
 }

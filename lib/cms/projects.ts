@@ -4,8 +4,8 @@ import type { Locale } from "@/lib/i18n";
 import { parseProjectPage, validSlug } from "./project-parser";
 import type { CaseStudy, CmsResult, ProjectPage, ProjectType } from "./project-types";
 
-const populate = { "populate[technologies]": "true", "populate[coverImage]": "true", "populate[gallery]": "true", "populate[features]": "true", "populate[responsibilities]": "true", "populate[seo][populate][ogImage]": "true", "populate[localizations][fields][0]": "locale", "populate[localizations][fields][1]": "slug", "populate[localizations][fields][2]": "publishedAt" };
-const summaryPopulate = { "populate[technologies]": "true", "populate[coverImage]": "true", "populate[localizations][fields][0]": "locale", "populate[localizations][fields][1]": "slug", "populate[localizations][fields][2]": "publishedAt" };
+const populate = { "populate[technologies]": "true", "populate[coverImage]": "true", "populate[gallery]": "true", "populate[features]": "true", "populate[responsibilities]": "true", "populate[seo][populate][ogImage]": "true" };
+const summaryPopulate = { "populate[technologies]": "true", "populate[coverImage]": "true" };
 const summaryFields = Object.fromEntries(["title", "slug", "shortDescription", "projectType", "featured", "displayOrder", "projectYear", "publishedAt", "updatedAt", "locale"].map((field, index) => [`fields[${index}]`, field]));
 export async function queryProjects(locale: Locale, query: Record<string, string> = {}, detail = false): Promise<CmsResult<ProjectPage>> {
   try {
@@ -20,7 +20,12 @@ export async function queryProjects(locale: Locale, query: Record<string, string
 export const getProject = cache(async (locale: Locale, slug: string): Promise<CmsResult<CaseStudy | null>> => {
   if (!validSlug(slug)) return { ok: true, value: null };
   const result = await queryProjects(locale, { "filters[slug][$eq]": slug, "pagination[pageSize]": "1" }, true);
-  return result.ok ? { ok: true, value: result.value.projects[0] ?? null } : result;
+  if (!result.ok) return result;
+  const project = result.value.projects[0];
+  if (!project) return { ok: true, value: null };
+  // Strapi 5 translations share documentId; there is no localizations relation.
+  const alternate = await queryProjects(locale === "en" ? "ar" : "en", { "filters[documentId][$eq]": project.documentId, "pagination[pageSize]": "1" });
+  return { ok: true, value: { ...project, localizations: alternate.ok ? alternate.value.projects.map(p => ({ locale: p.locale, slug: p.slug, publishedAt: p.publishedAt })) : [] } };
 });
 export const getFeaturedProjects = (locale: Locale) => queryProjects(locale, { "filters[featured][$eq]": "true", "pagination[pageSize]": "3" });
 export const getProjectList = (locale: Locale, page = 1, type?: ProjectType) => queryProjects(locale, { "pagination[page]": String(page), ...(type ? { "filters[projectType][$eq]": type } : {}) });

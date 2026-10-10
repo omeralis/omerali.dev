@@ -52,3 +52,23 @@ Checks: npm run lint; npx tsc --noEmit; npm run build; node --test tests/project
 Fixture browser verification: start node tests/strapi-fixture.mjs (localhost:3016), then build and run Next on port 3017 with STRAPI_API_URL=http://localhost:3016, STRAPI_API_TOKEN=fixture-read-token and STRAPI_WEBHOOK_SECRET=fixture-webhook-secret-32-characters-long. Run node tests/project-browser.mjs with Playwright available, or set PLAYWRIGHT_MODULE_PATH to the bundled package directory. These are synthetic test credentials and records, never production data. Stop both test servers and rebuild with the normal environment afterward.
 
 Phase 4 validation: frontend lint, standalone TypeScript, production builds, five API-contract tests, and fixture browser checks passed. Backend TypeScript/build, schema registration/type generation and two schema/seed tests passed without database startup. Browser checks covered English/Arabic at 360/768/1280/1600 pixels, filtering, pagination, case studies, missing slugs/translations, media rendering, metadata, sitemap, language switching, protected webhook invalidation, malformed/outage/empty responses and unchanged prior sections. Screenshots were reviewed. Production API returned 404; real PostgreSQL, published content, read permissions and persistent uploads remain unverified pending approved deployment.
+
+## Current Phase 4 release
+
+The historical preparation notes above are superseded: production Strapi now serves GRC Platform, Cyber Imtithal and Investor / Vendor Portal in English and Arabic. Projects come exclusively from published CMS responses. No descriptions, screenshots, dates, client names, roles or technologies are invented as fallbacks. Missing images show text-based previews; absent optional case-study fields are omitted.
+
+Strapi 5 translations are resolved by their shared documentId, querying the other locale's published record to obtain its actual slug. Legacy localizations population is not used. Metadata and sitemap alternates include only observed published translations. Language switching falls back to the other language's listing if a case study has no published translation. Listing loading UI is scoped to its route group so missing detail pages retain HTTP 404.
+
+The release uses Next.js 16.4.0 and matching ESLint configuration to address confirmed framework security advisories. Runtime dependency audit is clean. Five audit findings remain in development-only lint dependencies through braces; the suggested forced fix would downgrade eslint-config-next to Next.js 14 and is not applied.
+
+### Production environment and content refresh
+
+GitHub Actions sets the public STRAPI_API_URL=https://api.omerali.dev and SITE_URL=https://omerali.dev at both standalone build and PM2 runtime. No public-read API token is required. Existing production environment files and optional webhook secrets are not overwritten. The package records its source SHA in DEPLOYED_COMMIT and the workflow checks the restarted frontend's HTTP health. Pull requests run lint, project tests, TypeScript checking and a production build before release.
+
+Project fetches are cached for 300 seconds with projects and locale cache tags. Homepage ISR also revalidates at 300 seconds. Listings, detail routes, alternate-slug lookup and sitemap support newly published content without rebuilding: after the TTL, the next request initiates refresh and subsequent requests receive refreshed content. This request-driven, time-based policy is the working production fallback while no CMS webhook secret is configured. The optional existing authenticated webhook immediately expires project caches; it returns 503 when unconfigured, and rejects unauthorized requests when configured. No backend settings or content are changed to enable it.
+
+### Verification
+
+Run npm ci, npm run lint, npm run test:projects, npx tsc --noEmit and npm run build. Set TEST_LIVE_CMS=1 for the additional read-only integration test against actual production JSON. Synthetic browser tests additionally cover different translated slugs, missing translations, malformed responses, empty/outage states, authorization, cache invalidation, media, pagination and 404s.
+
+To verify a standalone release using real production content, run tests/project-production-browser.mjs with PLAYWRIGHT_MODULE_PATH configured when using the bundled runtime, BROWSER_ORIGIN pointing to the site under test, and SITE_URL=https://omerali.dev. This reads CMS data, verifies both locales and all six case studies, filters, metadata, sitemap, placeholders, theme/language controls, and responsive layouts. It never changes CMS content. Screenshots and the JSON verification report are saved under ignored test-results/.

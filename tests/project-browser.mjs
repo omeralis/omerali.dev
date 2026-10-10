@@ -56,6 +56,11 @@ try {
  assert.equal((await fetch(`${origin}/api/revalidate`, {method:"POST",body:"{}"})).status,401);
  const html = await (await fetch(`${origin}/en/projects/test-fixture-0`)).text();
  assert.equal(html.includes("fixture-read-token"),false);
+ await fetch('http://localhost:3016/mode?value=different-slugs',{method:'POST'});await invalidate();
+ await page.goto(`${origin}/en/projects/test-fixture-0`,{waitUntil:'domcontentloaded'});
+ assert.ok((await page.locator('link[rel="alternate"][hreflang="ar"]').getAttribute('href')).endsWith('/ar/projects/ar-test-fixture-0'));
+ await page.locator('.header-controls a[hreflang="ar"]').click();await page.waitForURL('**/ar/projects/ar-test-fixture-0');
+ assert.equal(await page.locator('.case-heading h1').innerText(),'مشروع اختبار 0');
  for (const mode of ["outage", "empty", "malformed", "missing-translation"]) {
   await fetch(`http://localhost:3016/mode?value=${mode}`, {method:"POST"});
   await invalidate();
@@ -63,7 +68,11 @@ try {
   assert.equal(await page.locator("#hero-heading").count(),1);
   if(mode !== "missing-translation") assert.equal(await page.locator("#projects .project-state").count(),1);
   if(mode === "empty") assert.ok((await page.locator("#projects").innerText()).includes("No projects have been published"));
-  if(mode === "missing-translation") assert.equal((await page.goto(`${origin}/ar/projects/test-fixture-0`, {waitUntil:"domcontentloaded"})).status(),404);
+  if(mode === "missing-translation") {
+   assert.equal((await page.goto(`${origin}/ar/projects/test-fixture-0`, {waitUntil:"domcontentloaded"})).status(),404);
+   await page.goto(`${origin}/en/projects/test-fixture-0`,{waitUntil:'domcontentloaded'});
+   await page.locator('.header-controls a[hreflang="ar"]').click();await page.waitForURL('**/ar/projects');
+  }
  }
  await fetch("http://localhost:3016/mode?value=normal", {method:"POST"}); await invalidate();
  await page.goto(`${origin}/ar`, {waitUntil:"domcontentloaded"});
