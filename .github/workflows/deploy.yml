@@ -1,0 +1,83 @@
+
+name: Deploy Next.js Portfolio
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portfolio-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js
+        run: npm run build
+
+      - name: Prepare deployment package
+        run: |
+          mkdir -p release/.next
+
+          cp -a .next/standalone/. release/
+          cp -a .next/static release/.next/static
+
+          if [ -d public ]; then
+            cp -a public release/public
+          fi
+
+          tar -czf nextjs-release.tar.gz -C release .
+
+      - name: Upload build to VPS
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: nextjs-release.tar.gz
+          target: /var/www/omerali.dev/web
+
+      - name: Deploy and restart Next.js
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+
+            cd /var/www/omerali.dev/web
+
+            tar -xzf nextjs-release.tar.gz
+            rm nextjs-release.tar.gz
+
+            if pm2 describe omerali-web > /dev/null 2>&1; then
+              PORT=3000 HOSTNAME=127.0.0.1 \
+                pm2 restart omerali-web --update-env
+            else
+              PORT=3000 HOSTNAME=127.0.0.1 \
+                pm2 start server.js --name omerali-web
+            fi
+
+            pm2 save
+
+            echo "Next.js deployment completed!"
