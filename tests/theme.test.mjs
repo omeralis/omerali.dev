@@ -56,7 +56,7 @@ test('text and primary controls meet WCAG AA contrast in both palettes', () => {
   for (const selector of [':root', ':root[data-theme=light]']) {
     const block = css.slice(css.indexOf(`${selector} {`)).split('}')[0];
     const colors = Object.fromEntries([...block.matchAll(/--([\w-]+):#([\da-f]{6});/g)].map(m => [m[1], m[2]]));
-    for (const [a, b] of [['text', 'bg'], ['text', 'surface'], ['muted', 'bg'], ['muted', 'surface'], ['accent', 'bg'], ['accent', 'surface'], ['accent-ink', 'brand']]) {
+    for (const [a, b] of [['text', 'bg'], ['text', 'surface'], ['muted', 'bg'], ['muted', 'surface'], ['muted', 'soft'], ['accent', 'bg'], ['accent', 'surface'], ['accent', 'surface-raised'], ['accent', 'soft'], ['accent-ink', 'brand']]) {
       const values = [luminance(colors[a]), luminance(colors[b])].sort((x, y) => y - x);
       assert.ok((values[0] + .05) / (values[1] + .05) >= 4.5, `${selector}: ${a} on ${b}`);
     }

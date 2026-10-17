@@ -11,7 +11,7 @@
 :root[data-theme=light] {
   --bg:#f8fafc; --surface:#ffffff; --surface-raised:#f0f5f8;
   --text:#102238; --muted:#4d6075; --line:#d4dfe7;
-  --brand:#0d9f90; --accent:#087d72; --accent-ink:#071321;
+  --brand:#0d9f90; --accent:#07766b; --accent-ink:#071321;
   --soft:#d9f7f1; --glow:#0d9f900c; --shadow:#1022380a;
   color-scheme:light;
 }
