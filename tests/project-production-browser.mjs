@@ -62,10 +62,10 @@ try{
   await page.locator('.project-preview').first().waitFor();
   assert.equal(await page.locator('.project-preview').count(),2);
   await page.goto(`${origin}/${locale}`,{waitUntil:'domcontentloaded'});
-  const theme=await page.locator('html').getAttribute('data-theme');
-  await page.locator('.theme-toggle').click();
-  assert.notEqual(await page.locator('html').getAttribute('data-theme'),theme);
-  await page.locator('.theme-toggle').click();
+  await page.locator('.theme-toggle').selectOption('dark');
+  assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
+  await page.locator('.theme-toggle').selectOption('light');
+  assert.equal(await page.locator('html').getAttribute('data-theme'),'light');
  }
  const sitemapResponse=await fetch(`${origin}/sitemap.xml`);assert.equal(sitemapResponse.status,200);
  const sitemap=await sitemapResponse.text();
