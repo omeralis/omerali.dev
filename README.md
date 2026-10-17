@@ -111,3 +111,42 @@ can retain old generated HTML at stable Next.js route-cache keys even when the
 new build's prerendered seeds are correct. `npm run test:release` verifies that
 only generated render responses are removed and that build seeds, fetch caches,
 environment files and application files are preserved; symlink targets fail closed.
+
+# Phase 5: published bilingual CMS content
+
+Professional content now comes exclusively from Strapi, with no local fallback:
+
+| Website content | Published Strapi source |
+| --- | --- |
+| Header/footer identity, metadata, Hero, career start | Global (`/api/global`) |
+| About, biography, details, technology groups | About (`/api/about`) + Technology relations |
+| Ordered engineering capabilities | Service (`/api/services`) |
+| Independent full/part-time career entries | Experience (`/api/experiences`) |
+| Contact, social links, optional resume | Global components/media |
+
+`lib/cms/client.ts` uses the existing server-side `STRAPI_API_URL` (or legacy
+`STRAPI_URL`), optional private `STRAPI_API_TOKEN`, enabled/published filters,
+redirect refusal, timeouts, 300-second revalidation and the `portfolio` cache tag.
+`lib/cms/portfolio.ts` checks locale/publication and validates responses, maps
+components into the existing views, preserves career month precision/overlaps,
+and discards unsafe external/media URLs. Missing/invalid/unavailable content
+renders localized states instead of silently substituting personal facts.
+Static UI translations and domain types remain in `lib/content`; confirmed
+professional seed facts live only in the backend migration candidate snapshot.
+
+The authenticated revalidation route accepts Global/About/Service/Experience and
+Technology/Project events and invalidates portfolio pages, layouts, project pages
+and sitemap. Use a server-only webhook secret of at least 32 characters; requests
+are rejected if it is unconfigured. With no webhook configured, the existing
+request-driven 300-second cache refresh remains the supported production path:
+the first request after expiry starts revalidation and subsequent requests see
+the published changes. No content edit or deployment is required to test this
+policy: inspect the configured cache options and run synthetic edit tests.
+
+Validation: `npm run test:portfolio`, existing project/theme/release tests,
+TypeScript, lint and build. `node tests/portfolio-browser.mjs --fixture` checks
+all five sections against synthetic API values, simulates published edits and
+authenticated invalidation, and confirms outage/empty states never reveal local
+fallback facts. `BROWSER_ORIGIN=https://omerali.dev node tests/portfolio-browser.mjs`
+compares live section text, ordering, contact links, skills and metadata with
+actual published API data in both locales without changing production facts.

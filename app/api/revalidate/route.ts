@@ -13,11 +13,13 @@ export async function POST(request: Request) {
     const payload: unknown = JSON.parse(raw);
     if (!payload || typeof payload !== "object") throw new Error();
     const { event, model } = payload as Record<string, unknown>;
-    if (!["entry.create", "entry.update", "entry.publish", "entry.unpublish", "entry.delete"].includes(String(event)) || !["project", "technology"].includes(String(model))) return Response.json({ ignored: true });
+    if (!["entry.create", "entry.update", "entry.publish", "entry.unpublish", "entry.delete"].includes(String(event)) || !["project", "technology", "global", "about", "service", "experience"].includes(String(model))) return Response.json({ ignored: true });
+    revalidateTag("portfolio", { expire: 0 });
     revalidateTag("projects", { expire: 0 });
     for (const locale of ["en", "ar"]) { revalidatePath(`/${locale}`); revalidatePath(`/${locale}/projects`); }
     revalidatePath("/[locale]/projects/[slug]", "page");
     revalidatePath("/sitemap.xml");
+    revalidatePath("/[locale]", "layout");
     return Response.json({ revalidated: true });
   } catch { return Response.json({ error: "Invalid payload" }, { status: 400 }); }
 }
