@@ -11,14 +11,19 @@ try {
     const context = await browser.newContext({ colorScheme: theme, reducedMotion: 'reduce' });
     const page = await context.newPage(); page.on('pageerror', error => errors.push(error.message));
     page.on('console', message => { if (message.type() === 'error' && /hydrat|mismatch/i.test(message.text())) errors.push(message.text()); });
-    await page.goto(`${origin}/${locale}`, { waitUntil: 'domcontentloaded' });
+    let releaseScripts;
+    const scriptsReady = new Promise(resolve => { releaseScripts = resolve; });
+    await page.route('**/*.js', async route => { await scriptsReady; await route.continue(); });
+    await page.goto(`${origin}/${locale}`, { waitUntil: 'commit' });
     await page.locator('#projects .project-preview').first().waitFor();
     await page.waitForFunction(() => document.querySelector('.theme-toggle')?.value === 'system');
     assert.equal(await page.locator('html').getAttribute('data-theme'), theme);
     // Live OS changes affect System only, without a reload.
     const opposite = theme === 'dark' ? 'light' : 'dark';
     await page.emulateMedia({ colorScheme: opposite });
+    releaseScripts();
     await page.waitForFunction(t => document.documentElement.dataset.theme === t, opposite);
+    await page.unroute('**/*.js');
     await page.locator('.theme-toggle').selectOption(theme);
     await page.emulateMedia({ colorScheme: opposite });
     assert.equal(await page.locator('html').getAttribute('data-theme'), theme);

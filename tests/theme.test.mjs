@@ -39,6 +39,14 @@ test('theme remains usable when browser storage is unavailable', () => {
   assert.equal(r.api.getThemePreference(), 'dark');
   assert.equal(r.document.documentElement.dataset.theme, 'dark');
 });
+test('system changes between head bootstrap and hydration are reconciled on subscription', () => {
+  const r = runtime({ dark: false });
+  assert.equal(r.document.documentElement.dataset.theme, 'light');
+  r.media.matches = true; // OS changed before React registered the listener.
+  const unsubscribe = r.api.subscribeTheme(() => {});
+  assert.equal(r.document.documentElement.dataset.theme, 'dark');
+  unsubscribe();
+});
 test('text and primary controls meet WCAG AA contrast in both palettes', () => {
   const css = fs.readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8');
   const luminance = hex => {
