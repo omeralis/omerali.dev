@@ -1,18 +1,18 @@
 @import "tailwindcss";
 
-/* Teal is the single brand hue. Text accents have separate accessible tokens. */
+/* Gold is the single brand hue. Text accents have separate accessible tokens. */
 :root {
-  --bg:#071321; --surface:#122238; --surface-raised:#172d43;
-  --text:#f0f6fc; --muted:#adbdce; --line:#2b4157;
-  --brand:#0d9f90; --accent:#42ddc8; --accent-ink:#071321;
-  --soft:#102e35; --glow:#0d9f9018; --shadow:#00000030;
+  --bg:#101113; --surface:#1c1d21; --surface-raised:#25262b;
+  --text:#f9fafb; --muted:#a1a1aa; --line:#3b3c43;
+  --brand:#facc15; --brand-secondary:#eab308; --accent:#facc15; --accent-ink:#111827;
+  --soft:#30290f; --glow:#facc1512; --shadow:#00000030;
   color-scheme:dark;
 }
 :root[data-theme=light] {
-  --bg:#f8fafc; --surface:#ffffff; --surface-raised:#f0f5f8;
-  --text:#102238; --muted:#4d6075; --line:#d4dfe7;
-  --brand:#0d9f90; --accent:#07766b; --accent-ink:#071321;
-  --soft:#d9f7f1; --glow:#0d9f900c; --shadow:#1022380a;
+  --bg:#fafaf8; --surface:#ffffff; --surface-raised:#f2f2ef;
+  --text:#111827; --muted:#52525b; --line:#dcdcd5;
+  --brand:#facc15; --brand-secondary:#eab308; --accent:#854d0e; --accent-ink:#111827;
+  --soft:#fff6d6; --glow:#facc150a; --shadow:#1118270a;
   color-scheme:light;
 }
 *{box-sizing:border-box}
@@ -52,6 +52,7 @@ main,.site-header,.site-footer{max-width:1280px;margin-inline:auto;padding-inlin
 .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
 .button{min-height:48px;padding:12px 21px;border-radius:10px;font-size:13px;font-weight:650;border:1px solid var(--line);display:inline-flex;gap:22px;align-items:center;justify-content:center;transition:transform .2s,box-shadow .2s}
 .button:hover{transform:translateY(-2px);box-shadow:0 8px 25px var(--shadow)}
+.primary:hover{background:var(--brand-secondary);border-color:var(--brand-secondary)}
 .primary{background:var(--brand);color:var(--accent-ink);border-color:var(--brand)}
 .secondary{background:var(--surface)}
 .secondary-links{display:flex;flex-wrap:wrap;gap:12px 24px;color:var(--muted);font-size:12px;margin-top:25px}

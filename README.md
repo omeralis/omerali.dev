@@ -72,12 +72,16 @@ Project fetches are cached for 300 seconds with projects and locale cache tags. 
 Run npm ci, npm run lint, npm run test:projects, npx tsc --noEmit and npm run build. Set TEST_LIVE_CMS=1 for the additional read-only integration test against actual production JSON. Synthetic browser tests additionally cover different translated slugs, missing translations, malformed responses, empty/outage states, authorization, cache invalidation, media, pagination and 404s.
 
 To verify a standalone release using real production content, run tests/project-production-browser.mjs with PLAYWRIGHT_MODULE_PATH configured when using the bundled runtime, BROWSER_ORIGIN pointing to the site under test, and SITE_URL=https://omerali.dev. This reads CMS data, verifies both locales and all six case studies, filters, metadata, sitemap, placeholders, theme/language controls, and responsive layouts. It never changes CMS content. Screenshots and the JSON verification report are saved under ignored test-results/.
-# Teal portfolio redesign
+# Golden Yellow portfolio theme
 
-The shared design tokens in `app/globals.css` support the approved navy/teal dark
-palette and white/teal light palette across the homepage, project listing, case
+The shared design tokens in `app/globals.css` support the approved charcoal/gold dark
+palette and white/gold light palette across the homepage, project listing, case
 studies and missing/error states. Content, CMS queries, locale routes, metadata,
 sitemap and the existing 300-second revalidation policy remain intact.
+
+Gold buttons use dark text on `#FACC15` (hover `#EAB308`). Dark-mode accent text
+uses `#FACC15`; light-mode accent text uses the accessible `#854D0E` token on
+white and soft gold surfaces. Layout, content, icons and motion are preserved.
 
 The header theme picker defaults to System. A before-paint script resolves the
 saved preference or OS preference; React reads the same preference through an
