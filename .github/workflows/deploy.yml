@@ -49,6 +49,8 @@ jobs:
           fi
 
           printf '%s\n' "$GITHUB_SHA" > release/DEPLOYED_COMMIT
+          mkdir -p release/scripts
+          cp scripts/reset-render-cache.mjs release/scripts/
 
           tar -czf nextjs-release.tar.gz -C release .
 
@@ -74,6 +76,14 @@ jobs:
 
             tar -xzf nextjs-release.tar.gz
             rm nextjs-release.tar.gz
+
+            # Next.js can reuse stable route-cache keys across overlay releases.
+            # Validate first, then stop old renderers before clearing generated HTML.
+            node scripts/reset-render-cache.mjs --check
+            if pm2 describe omerali-web > /dev/null 2>&1; then
+              pm2 stop omerali-web
+            fi
+            node scripts/reset-render-cache.mjs
 
             if pm2 describe omerali-web > /dev/null 2>&1; then
               STRAPI_API_URL=https://api.omerali.dev SITE_URL=https://omerali.dev PORT=3000 HOSTNAME=127.0.0.1 \

@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test:projects": "node --test tests/project-data.test.mjs",
-    "test:theme": "node --test tests/theme.test.mjs"
+    "test:theme": "node --test tests/theme.test.mjs",
+    "test:release": "node --test tests/render-cache.test.mjs"
   },
   "dependencies": {
     "next": "16.4.0",

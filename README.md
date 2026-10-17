@@ -100,3 +100,10 @@ both locales, mobile/tablet/desktop layouts, all three real project detail pages
 mobile navigation, system changes and persistence. Reports and screenshots are
 written to ignored `test-results/themes/`. The unit suite also checks WCAG AA
 contrast for body, secondary and accent text and primary controls in both themes.
+
+The standalone deployment validates and clears `.next/server/route-cache` while
+the frontend process is stopped, before restarting it. Overlay extraction alone
+can retain old generated HTML at stable Next.js route-cache keys even when the
+new build's prerendered seeds are correct. `npm run test:release` verifies that
+only generated render responses are removed and that build seeds, fetch caches,
+environment files and application files are preserved; symlink targets fail closed.
