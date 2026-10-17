@@ -4,6 +4,7 @@ import type { Locale } from "@/lib/i18n";
 import type { CaseStudy, ProjectMedia } from "@/lib/cms/project-types";
 import { getProjectMessages } from "@/lib/content/projects";
 import { getFeaturedProjects } from "@/lib/cms/projects";
+import { Icon } from "./icon";
 
 export function ProjectImage({ image, title, priority = false }: { image: ProjectMedia; title: string; priority?: boolean }) {
   const localMedia = ["localhost", "127.0.0.1"].includes(new URL(image.url).hostname);
@@ -14,7 +15,7 @@ export function TechnologyLabels({ project }: { project: CaseStudy }) {
 }
 export function ProjectPlaceholder({ project, locale }: { project: CaseStudy; locale: Locale }) {
   const t = getProjectMessages(locale);
-  return <div className="project-type-preview" aria-hidden="true"><span className="eyebrow">{t.types[project.projectType]}</span><span>{project.title}</span><span className="preview-caption">{t.noPreview}</span></div>;
+  return <div className="project-type-preview" aria-hidden="true"><span className="eyebrow">{t.types[project.projectType]}</span><span>{project.title}</span><span className="preview-caption"><Icon name="layers"/>{t.noPreview}</span></div>;
 }
 export function ProjectShowcase({ projects, locale }: { projects: CaseStudy[]; locale: Locale }) {
   const t = getProjectMessages(locale);

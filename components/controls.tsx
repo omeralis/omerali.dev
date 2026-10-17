@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
+import { getServerTheme, getThemePreference, setThemePreference, subscribeTheme } from "@/lib/theme";
 import { messages, sectionIds, type Locale } from "@/lib/i18n";
 export function LanguageSwitch({ locale }: { locale: Locale }) {
  const pathname = usePathname(); const next = locale === "en" ? "ar" : "en";
@@ -13,7 +14,8 @@ export function LanguageSwitch({ locale }: { locale: Locale }) {
  }}>{next === "ar" ? "العربية" : "English"}</a>;
 }
 export function ThemeToggle({ locale }: { locale: Locale }) {
- return <button className="control theme-toggle" aria-label={messages[locale].theme} onClick={() => { const next = document.documentElement.dataset.theme === "light" ? "dark" : "light"; document.documentElement.dataset.theme = next; try { localStorage.setItem("theme", next); } catch { /* Storage is optional. */ } }}><span aria-hidden="true">◐</span></button>;
+ const preference = useSyncExternalStore(subscribeTheme, getThemePreference, getServerTheme);
+ return <select className="control theme-toggle" aria-label={messages[locale].theme} value={preference} onChange={event => { const value = event.target.value; if (value === "dark" || value === "light" || value === "system") setThemePreference(value); }}><option value="system">{locale === "ar" ? "النظام" : "System"}</option><option value="dark">{locale === "ar" ? "داكن" : "Dark"}</option><option value="light">{locale === "ar" ? "فاتح" : "Light"}</option></select>;
 }
 export function Navigation({ locale }: { locale: Locale }) {
  const [open, setOpen] = useState(false);

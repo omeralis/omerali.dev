@@ -72,3 +72,31 @@ Project fetches are cached for 300 seconds with projects and locale cache tags. 
 Run npm ci, npm run lint, npm run test:projects, npx tsc --noEmit and npm run build. Set TEST_LIVE_CMS=1 for the additional read-only integration test against actual production JSON. Synthetic browser tests additionally cover different translated slugs, missing translations, malformed responses, empty/outage states, authorization, cache invalidation, media, pagination and 404s.
 
 To verify a standalone release using real production content, run tests/project-production-browser.mjs with PLAYWRIGHT_MODULE_PATH configured when using the bundled runtime, BROWSER_ORIGIN pointing to the site under test, and SITE_URL=https://omerali.dev. This reads CMS data, verifies both locales and all six case studies, filters, metadata, sitemap, placeholders, theme/language controls, and responsive layouts. It never changes CMS content. Screenshots and the JSON verification report are saved under ignored test-results/.
+# Teal portfolio redesign
+
+The shared design tokens in `app/globals.css` support the approved navy/teal dark
+palette and white/teal light palette across the homepage, project listing, case
+studies and missing/error states. Content, CMS queries, locale routes, metadata,
+sitemap and the existing 300-second revalidation policy remain intact.
+
+The header theme picker defaults to System. A before-paint script resolves the
+saved preference or OS preference; React reads the same preference through an
+external store with a stable hydration snapshot. Explicit Dark/Light choices
+persist in browser storage, System removes the override, and live OS changes are
+followed in System mode. Storage failure retains the current session's choice.
+Motion is disabled when reduced motion is requested.
+
+Validation:
+
+```sh
+npm run test:theme
+node tests/theme-browser.mjs
+```
+
+The browser suite uses Playwright (or the bundled module identified by
+`PLAYWRIGHT_MODULE_PATH`) and defaults to `http://127.0.0.1:3017`. Set
+`BROWSER_ORIGIN=https://omerali.dev` to verify production. It tests both themes,
+both locales, mobile/tablet/desktop layouts, all three real project detail pages,
+mobile navigation, system changes and persistence. Reports and screenshots are
+written to ignored `test-results/themes/`. The unit suite also checks WCAG AA
+contrast for body, secondary and accent text and primary controls in both themes.
