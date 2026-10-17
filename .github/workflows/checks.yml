@@ -23,5 +23,6 @@ jobs:
       - run: npm run lint
       - run: npm run test:projects
       - run: npm run test:theme
+      - run: npm run test:release
       - run: npx tsc --noEmit
       - run: npm run build
