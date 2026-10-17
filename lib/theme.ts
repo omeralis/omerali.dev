@@ -26,6 +26,8 @@ export function subscribeTheme(listener: () => void) {
   window.addEventListener("portfolio-theme", update);
   window.addEventListener("storage", storage);
   media.addEventListener("change", update);
+  // The OS may have changed after the head script and before hydration.
+  applyTheme();
   return () => { window.removeEventListener("portfolio-theme", update); window.removeEventListener("storage", storage); media.removeEventListener("change", update); };
 }
 export function getServerTheme(): ThemePreference { return "system"; }

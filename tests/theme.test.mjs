@@ -39,6 +39,14 @@ test('theme remains usable when browser storage is unavailable', () => {
   assert.equal(r.api.getThemePreference(), 'dark');
   assert.equal(r.document.documentElement.dataset.theme, 'dark');
 });
+test('system changes between head bootstrap and hydration are reconciled on subscription', () => {
+  const r = runtime({ dark: false });
+  assert.equal(r.document.documentElement.dataset.theme, 'light');
+  r.media.matches = true; // OS changed before React registered the listener.
+  const unsubscribe = r.api.subscribeTheme(() => {});
+  assert.equal(r.document.documentElement.dataset.theme, 'dark');
+  unsubscribe();
+});
 test('text and primary controls meet WCAG AA contrast in both palettes', () => {
   const css = fs.readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8');
   const luminance = hex => {
@@ -48,7 +56,7 @@ test('text and primary controls meet WCAG AA contrast in both palettes', () => {
   for (const selector of [':root', ':root[data-theme=light]']) {
     const block = css.slice(css.indexOf(`${selector} {`)).split('}')[0];
     const colors = Object.fromEntries([...block.matchAll(/--([\w-]+):#([\da-f]{6});/g)].map(m => [m[1], m[2]]));
-    for (const [a, b] of [['text', 'bg'], ['text', 'surface'], ['muted', 'bg'], ['muted', 'surface'], ['accent', 'bg'], ['accent', 'surface'], ['accent-ink', 'brand']]) {
+    for (const [a, b] of [['text', 'bg'], ['text', 'surface'], ['muted', 'bg'], ['muted', 'surface'], ['muted', 'soft'], ['accent', 'bg'], ['accent', 'surface'], ['accent', 'surface-raised'], ['accent', 'soft'], ['accent-ink', 'brand']]) {
       const values = [luminance(colors[a]), luminance(colors[b])].sort((x, y) => y - x);
       assert.ok((values[0] + .05) / (values[1] + .05) >= 4.5, `${selector}: ${a} on ${b}`);
     }
