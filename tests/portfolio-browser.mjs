@@ -8,7 +8,7 @@ const fixture = process.argv.includes('--fixture');
 const browser = await chromium.launch({ headless: true, channel: 'msedge' });
 const page = await browser.newPage(), errors = [], evidence = [];
 page.on('pageerror', e => errors.push(e.message));
-const read = async (model, locale, params = {}) => { const url = new URL(`/api/${model}`, api); url.search = new URLSearchParams({ locale, status: 'published', 'pagination[pageSize]': '100', ...params }).toString(); const response = await fetch(url); assert.equal(response.status, 200); return (await response.json()).data; };
+const read = async (model, locale, params = {}) => { const url = new URL(`/api/${model}`, api); url.search = new URLSearchParams({ locale, status: 'published', ...(['services', 'experiences'].includes(model) ? { 'pagination[pageSize]': '100' } : {}), ...params }).toString(); const response = await fetch(url); assert.equal(response.status, 200, `${model}/${locale} public response`); return (await response.json()).data; };
 const invalidate = async model => { const response = await fetch(`${origin}/api/revalidate`, { method: 'POST', headers: { 'x-webhook-secret': 'fixture-webhook-secret-32-characters-long' }, body: JSON.stringify({ event: 'entry.publish', model }) }); assert.equal(response.status, 200); };
 try {
   for (const locale of ['en', 'ar']) {
@@ -22,6 +22,8 @@ try {
     assert.equal(await page.locator('.hero-intro').textContent(), global.hero.introduction);
     assert.deepEqual((await page.locator('#hero-heading > span').allTextContents()).map(t => t.trim()), global.hero.headline.map(t => t.value));
     assert.deepEqual(await page.locator('.about-biography p').allTextContents(), about.paragraphs.map(p => p.value));
+    const skillNames = about.stack.flatMap(group => [...group.items.filter(item => item.primary), ...group.items.filter(item => !item.primary)].map(item => item.technology.name));
+    assert.deepEqual(await page.locator('.stack-rows .technology-tag').allTextContents(), skillNames);
     assert.deepEqual(await page.locator('.capability-row h3').allTextContents(), services.map(s => s.title));
     assert.deepEqual(await page.locator('.capability-row p').allTextContents(), services.map(s => s.description));
     const grouped = [...experiences.filter(e => e.employmentType === 'full-time'), ...experiences.filter(e => e.employmentType === 'part-time')];

@@ -38,3 +38,13 @@ test('CMS reads enforce published locale, enabled filtering, server auth and 300
   try { global.fetch = async (url, options) => { observed = { url, options }; return { ok: true, json: async () => ({ data: portfolioFixture().global }) }; }; const result = await client.getContent('global', 'en', { status: 'draft', locale: 'ar', 'filters[enabled][$eq]': 'false' }); assert.equal(result.ok, true); assert.equal(observed.url.searchParams.get('status'), 'published'); assert.equal(observed.url.searchParams.get('locale'), 'en'); assert.equal(observed.url.searchParams.get('filters[enabled][$eq]'), 'true'); assert.equal(observed.options.next.revalidate, 300); assert.ok(observed.options.next.tags.includes('portfolio')); assert.equal(observed.options.redirect, 'error'); global.fetch = async () => { throw Error('private failure'); }; assert.equal((await api.getGlobal('en')).ok, false); }
   finally { global.fetch = original; }
 });
+test('actual published bilingual portfolio parses through production populate queries', { skip: process.env.TEST_LIVE_CMS !== '1' }, async () => {
+  for (const locale of ['en', 'ar']) {
+    const global = await api.getGlobal(locale), about = await api.getAbout(locale), services = await api.getServices(locale), experiences = await api.getExperiences(locale);
+    assert.equal(global.ok, true, `global/${locale}`); assert.equal(about.ok, true, `about/${locale}`); assert.equal(services.ok, true, `services/${locale}`); assert.equal(experiences.ok, true, `experiences/${locale}`);
+    assert.equal(global.value.careerStart, '2018-11'); assert.equal(global.value.socialLinks.length, 1);
+    assert.equal(services.value.services.length, 6); assert.equal(experiences.value.entries.length, 7);
+    assert.equal(about.value.stack.reduce((count, group) => count + group.primary.length + group.supporting.length, 0), 14);
+    assert.equal(global.value.hero.links.resume, undefined); assert.equal(global.value.hero.links.github, undefined);
+  }
+});
