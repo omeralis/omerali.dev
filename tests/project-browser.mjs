@@ -12,6 +12,8 @@ const browser = await chromium.launch({ headless: true, channel: "msedge" });
 const page = await browser.newPage();
 const errors = [];
 page.on("pageerror", error => errors.push(error.message));
+// The synthetic CMS deliberately repeats headline text. It must not produce duplicate React keys.
+page.on("console", message => { if (/same key|hydrat|mismatch/i.test(message.text())) errors.push(message.text()); });
 try {
  for (const locale of ["en", "ar"]) for (const width of [360, 768, 1280, 1600]) {
   await page.setViewportSize({ width, height: 1000 });

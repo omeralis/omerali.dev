@@ -17,7 +17,8 @@ try {
     const services = await read('services', locale, { 'sort[0]': 'displayOrder:asc', 'sort[1]': 'documentId:asc' });
     const experiences = await read('experiences', locale, { 'sort[0]': 'displayOrder:asc', 'sort[1]': 'documentId:asc' });
     await page.goto(`${origin}/${locale}`, { waitUntil: 'domcontentloaded' }); await page.locator('#hero-heading').waitFor();
-    assert.equal(await page.locator('.brand-name').textContent(), global.siteName);
+    assert.ok((await page.locator('.site-header .brand').getAttribute('aria-label')).includes(global.siteName));
+    assert.equal(await page.locator('.brand-name').count(), 0);
     assert.equal(await page.locator('.hero-identity').textContent(), global.hero.identity);
     assert.equal(await page.locator('.hero-intro').textContent(), global.hero.introduction);
     assert.deepEqual((await page.locator('#hero-heading > span').allTextContents()).map(t => t.trim()), global.hero.headline.map(t => t.value));
@@ -31,7 +32,7 @@ try {
     assert.deepEqual(await page.locator('.career-company').allTextContents(), grouped.map(e => e.company));
     assert.equal(await page.locator('#contact h2').textContent(), global.contact.heading);
     assert.equal(await page.locator('#contact > div > p:not(.eyebrow)').first().textContent(), global.contact.introduction);
-    assert.equal(await page.locator('#contact .button.primary').getAttribute('href'), global.socialLinks.find(l => l.key === 'linkedin' && l.enabled).url);
+    assert.equal(await page.locator('#contact a[data-method=linkedin]').getAttribute('href'), global.socialLinks.find(l => l.key === 'linkedin' && l.enabled).url);
     assert.ok((await page.title()).includes(global.siteName));
     const drafts = await read('services', locale, { status: 'draft' });
     assert.ok(drafts.every(d => d.publishedAt));

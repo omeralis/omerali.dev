@@ -48,3 +48,23 @@ test('actual published bilingual portfolio parses through production populate qu
     assert.equal(global.value.hero.links.resume, undefined); assert.equal(global.value.hero.links.github, undefined);
   }
 });
+
+test('contact destinations accept confirmed addresses and international numbers without URI injection', () => {
+  const { emailDestination, phoneDestination, publicIdentity } = load(path.join(root, 'lib/public-identity.ts'));
+  assert.equal(publicIdentity.github, 'https://github.com/omeralis');
+  assert.equal(emailDestination('hello@example.test'), 'mailto:hello@example.test');
+  for (const invalid of [undefined, '', 'not-an-email', 'hello@example.test?bcc=other@example.test', 'hello@example.test\nBcc:other@example.test', 'javascript:alert(1)']) assert.equal(emailDestination(invalid), undefined);
+  assert.equal(phoneDestination('+966 (50) 123-4567'), 'tel:+966501234567');
+  assert.equal(phoneDestination('+966 (50) 123-4567', true), 'https://wa.me/966501234567');
+  for (const invalid of [undefined, '', '0501234567', '+123', '+966501234567;ext=4', '+966501234567?text=secret', '+1234567890123456']) assert.equal(phoneDestination(invalid), undefined);
+});
+
+test('optional contact numbers come only from CMS and remain missing when unconfigured', () => {
+  const fixture = portfolioFixture();
+  assert.equal(api.parseGlobal(fixture.global, 'en').contact.phone, undefined);
+  assert.equal(api.parseGlobal(fixture.global, 'en').contact.whatsapp, undefined);
+  fixture.global.contact.phone = '+12025550123'; fixture.global.contact.whatsapp = '+12025550124';
+  const parsed = api.parseGlobal(fixture.global, 'en');
+  assert.equal(parsed.contact.phone, fixture.global.contact.phone);
+  assert.equal(parsed.contact.whatsapp, fixture.global.contact.whatsapp);
+});

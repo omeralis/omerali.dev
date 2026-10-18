@@ -1,4 +1,5 @@
 import Link from "next/link";
 import { LanguageSwitch, Navigation, ThemeToggle } from "./controls";
 import type { Locale } from "@/lib/i18n";
-export function Header({ locale, name }: { locale: Locale; name?: string }) { return <header className="site-header"><Link href={`/${locale}`} className="brand" aria-label={`${name || (locale === "ar" ? "الملف المهني" : "Portfolio")} — ${locale === "ar" ? "الرئيسية" : "Home"}`}><span className="brand-mark" aria-hidden="true">oa<span>.</span></span>{name && <span className="brand-name">{name}</span>}</Link><Navigation locale={locale}/><div className="header-controls"><LanguageSwitch locale={locale}/><ThemeToggle locale={locale}/></div></header>; }
+import { Monogram } from "./monogram";
+export function Header({ locale, name }: { locale: Locale; name?: string }) { return <header className="site-header"><div className="header-inner"><Link href={`/${locale}`} className="brand" aria-label={`${name || (locale === "ar" ? "الملف المهني" : "Portfolio")} — ${locale === "ar" ? "الرئيسية" : "Home"}`}><Monogram/></Link><Navigation locale={locale}/><div className="header-controls"><ThemeToggle locale={locale}/><LanguageSwitch locale={locale}/></div></div></header>; }
