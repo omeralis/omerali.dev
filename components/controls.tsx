@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { getServerTheme, getThemePreference, setThemePreference, subscribeTheme } from "@/lib/theme";
 import { messages, sectionIds, type Locale } from "@/lib/i18n";
 export function LanguageSwitch({ locale }: { locale: Locale }) {
@@ -19,5 +19,27 @@ export function ThemeToggle({ locale }: { locale: Locale }) {
 }
 export function Navigation({ locale }: { locale: Locale }) {
  const [open, setOpen] = useState(false);
- return <><button className="control menu-toggle" aria-expanded={open} aria-controls="main-nav" onClick={() => setOpen(!open)}>{messages[locale].menu}</button><nav id="main-nav" aria-label={messages[locale].menu} className={open ? "navigation is-open" : "navigation"}>{sectionIds.map((id, index) => <Link key={id} href={`/${locale}#${id}`} onClick={() => setOpen(false)}>{messages[locale].nav[index]}</Link>)}</nav></>;
+ const [section, setSection] = useState("home");
+ const pathname = usePathname(), toggle = useRef<HTMLButtonElement>(null);
+ const isProject = pathname.includes("/projects");
+ useEffect(() => {
+   let frame = 0;
+   const update = () => {
+     const sections = sectionIds.map(id => document.getElementById(id)).filter((el): el is HTMLElement => !!el);
+     const active = [...sections].reverse().find(el => el.getBoundingClientRect().top <= 160);
+     const atEnd = window.scrollY > 0 && window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 4;
+     setSection(atEnd ? sections.at(-1)?.id || "home" : active?.id || "home");
+   };
+   const scroll = () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(update); };
+   scroll(); window.addEventListener("scroll", scroll, { passive: true }); window.addEventListener("resize", scroll);
+   return () => { cancelAnimationFrame(frame); window.removeEventListener("scroll", scroll); window.removeEventListener("resize", scroll); };
+ }, [pathname]);
+ useEffect(() => {
+   if (!open) return;
+   const close = (event: KeyboardEvent) => { if (event.key === "Escape") { setOpen(false); toggle.current?.focus(); } };
+   const outside = (event: PointerEvent) => { if (event.target instanceof Element && !event.target.closest(".navigation,.menu-toggle")) setOpen(false); };
+   document.addEventListener("keydown", close); document.addEventListener("pointerdown", outside);
+   return () => { document.removeEventListener("keydown", close); document.removeEventListener("pointerdown", outside); };
+ }, [open]);
+ return <><button ref={toggle} className="control menu-toggle" aria-expanded={open} aria-controls="main-nav" onClick={() => setOpen(value => !value)}><span aria-hidden="true">{open ? "×" : "☰"}</span><span className="sr-only">{messages[locale].menu}</span></button><nav id="main-nav" aria-label={messages[locale].menu} className={open ? "navigation is-open" : "navigation"}>{sectionIds.map((id, index) => <Link key={id} href={`/${locale}#${id}`} aria-current={(isProject ? id === "projects" : section === id) ? "location" : undefined} onClick={() => setOpen(false)}>{messages[locale].nav[index]}</Link>)}</nav></>;
 }
