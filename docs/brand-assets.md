@@ -1,7 +1,7 @@
 # OA brand asset
 
-The supplied, approved OA raster monogram is the source. A transparent cutout was prepared with the built-in imagegen tool; no replacement lettering was drawn in code. WebP and PNG/ICO size variants preserve alpha and the monogram proportions. The header/footer contain only the monogram; the home link retains a CMS-derived accessible name.
+The OA mark is a geometric monogram drawn in code (`components/monogram.tsx`): an emerald ring for the O overlapping an open apex for the A. It is an inline SVG whose strokes follow the theme tokens (`--brand` for the O, `--text` for the A), so it adapts to dark, light and forced-colors modes without separate raster files. The header/footer contain only the monogram; the home link retains a CMS-derived accessible name.
 
-Final edit prompt: "BACKGROUND REMOVAL ONLY. Do not redesign. Isolate EXACT original black and gold OA from this image on TRANSPARENT ALPHA, including inside the O and A counters. No black backdrop, NO gold glow, NO shadow, NO lighting behind the logo, NO gradient background. The background pixels must be transparent. Preserve original source lettering and original gold edges unchanged. Tight crop around monogram, small clear transparent margin. This is a production PNG cutout, not a presentation mockup."
+App icons are generated from `app/icon.svg` (graphite tile, emerald O, white A): `app/apple-icon.png` (180px, opaque) and `app/favicon.ico` (16/32/48px PNG entries). Regenerate both with `sharp` from that SVG if the mark changes.
 
 The user-confirmed GitHub account and Riyadh location are explicit public identity configuration in `lib/public-identity.ts`. Other contact details remain CMS-only. Phone and WhatsApp are optional consumers, with no schema or production data changes.
