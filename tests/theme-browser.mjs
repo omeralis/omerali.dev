@@ -54,10 +54,10 @@ try {
         const color = name => { const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim(); return /^#[\da-f]{3}$/i.test(value) ? `#${value.slice(1).split('').map(c => c + c).join('')}` : value; };
         return { bg: color('--bg'), surface: color('--surface'), brand: color('--brand'), accent: color('--accent') };
       });
-      assert.equal(palette.bg, theme === 'dark' ? '#101113' : '#fafaf8');
-      assert.equal(palette.surface, theme === 'dark' ? '#1c1d21' : '#ffffff');
-      assert.equal(palette.brand, theme === 'dark' ? '#facc15' : '#d4a017');
-      assert.equal(palette.accent, theme === 'dark' ? '#facc15' : '#854d0e');
+      assert.equal(palette.bg, theme === 'dark' ? '#0b0c10' : '#f8f6f1');
+      assert.equal(palette.surface, theme === 'dark' ? '#14161c' : '#ffffff');
+      assert.equal(palette.brand, theme === 'dark' ? '#f2c14e' : '#dba521');
+      assert.equal(palette.accent, theme === 'dark' ? '#f5c95e' : '#855400');
       if ([360, 1440].includes(width)) {
         await page.screenshot({ path: `${output}/${theme}-${locale}-${width}.png`, fullPage: true });
         await page.screenshot({ path: `${output}/${theme}-${locale}-${width}-hero.png` });

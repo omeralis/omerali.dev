@@ -6,7 +6,12 @@ import { siteOrigin } from "@/lib/cms/urls";
 import { themeScript } from "@/lib/theme";
 import { getGlobal } from "@/lib/cms/portfolio";
 import { Footer } from "@/components/footer";
+import { Reveal } from "@/components/reveal";
+import { Geist, Geist_Mono, IBM_Plex_Sans_Arabic } from "next/font/google";
 import "../globals.css";
+const sans = Geist({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap", preload: false });
+const arabic = IBM_Plex_Sans_Arabic({ subsets: ["arabic"], weight: ["400", "500", "600", "700"], variable: "--font-arabic", display: "swap", preload: false });
 export function generateStaticParams() { return locales.map(locale => ({ locale })); }
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
  const { locale } = await params; if (!isLocale(locale)) return {};
@@ -17,5 +22,5 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function LocaleLayout({ children, params }: { children: React.ReactNode; params: Promise<{ locale: string }> }) {
  const { locale } = await params; if (!isLocale(locale)) notFound();
  const result = await getGlobal(locale), profile = result.ok ? result.value : null;
- return <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} data-theme="dark" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: themeScript }}/></head><body><a href="#main" className="skip-link">{messages[locale].skip}</a><Header locale={locale} name={profile?.name}/>{children}<Footer locale={locale} profile={profile}/></body></html>;
+ return <html lang={locale} dir={locale === "ar" ? "rtl" : "ltr"} data-theme="dark" className={`${sans.variable} ${mono.variable} ${arabic.variable}`} suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: themeScript }}/></head><body><a href="#main" className="skip-link">{messages[locale].skip}</a><Header locale={locale} name={profile?.name}/>{children}<Footer locale={locale} profile={profile}/><Reveal/></body></html>;
 }

@@ -19,7 +19,7 @@ export function ProjectPlaceholder({ project, locale }: { project: CaseStudy; lo
 }
 export function ProjectShowcase({ projects, locale }: { projects: CaseStudy[]; locale: Locale }) {
   const t = getProjectMessages(locale);
-  return <div className="project-showcase">{projects.map((project, index) => <article className={`project-preview${index === 0 ? " featured-lead" : ""}`} key={project.documentId}>
+  return <div className="project-showcase">{projects.map((project, index) => <article className={`project-preview${index === 0 ? " featured-lead" : ""}`} key={project.documentId} data-reveal>
     <Link href={`/${locale}/projects/${project.slug}`} className="project-art" aria-label={`${t.caseStudy}: ${project.title}`}>
       {project.coverImage ? <ProjectImage image={project.coverImage} title={project.title}/> : <ProjectPlaceholder project={project} locale={locale}/>}
     </Link>
@@ -28,5 +28,5 @@ export function ProjectShowcase({ projects, locale }: { projects: CaseStudy[]; l
 }
 export async function FeaturedProjects({ locale }: { locale: Locale }) {
   const t = getProjectMessages(locale), result = await getFeaturedProjects(locale);
-  return <section id="projects" className="projects-section" aria-labelledby="projects-heading"><div className="projects-section-heading"><p className="eyebrow">{t.identifier}</p><h2 id="projects-heading">{t.selected}</h2><p className="section-introduction">{t.introduction}</p></div>{result.ok && result.value.projects.length ? <ProjectShowcase projects={result.value.projects} locale={locale}/> : <p className="project-state" role="status">{result.ok ? t.empty : t.unavailable}</p>}<Link className="text-link" href={`/${locale}/projects`}>{t.all} <span className="arrow" aria-hidden="true">↗</span></Link></section>;
+  return <section id="projects" className="projects-section" aria-labelledby="projects-heading"><div className="projects-section-heading" data-reveal><p className="eyebrow">{t.identifier}</p><h2 id="projects-heading">{t.selected}</h2><p className="section-introduction">{t.introduction}</p></div>{result.ok && result.value.projects.length ? <ProjectShowcase projects={result.value.projects} locale={locale}/> : <p className="project-state" role="status">{result.ok ? t.empty : t.unavailable}</p>}<Link className="text-link" href={`/${locale}/projects`}>{t.all} <span className="arrow" aria-hidden="true">↗</span></Link></section>;
 }
