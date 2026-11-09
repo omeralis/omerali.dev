@@ -2,7 +2,7 @@ import type { Locale } from "@/lib/i18n";
 import { formatCareerMonth, type ExperienceContent, type ExperienceRecord } from "@/lib/content/career";
 
 function CareerEntry({ entry, labels, locale }: { entry: ExperienceRecord; labels: ExperienceContent; locale: Locale }) {
-  return <li className={`career-entry${entry.isCurrent ? " current-entry" : ""}`}>
+  return <li className={`career-entry${entry.isCurrent ? " current-entry" : ""}`} data-reveal>
     <div className="career-period"><time dateTime={entry.startDate}>{formatCareerMonth(entry.startDate, locale)}</time><span aria-hidden="true"> — </span>{entry.isCurrent ? <span>{labels.present}</span> : entry.endDate && <time dateTime={entry.endDate}>{formatCareerMonth(entry.endDate, locale)}</time>}</div>
     <div className="career-position">
       <h4>{locale === "ar" ? entry.roleArabic ?? entry.role : entry.role}</h4>
@@ -20,9 +20,9 @@ function CareerEntry({ entry, labels, locale }: { entry: ExperienceRecord; label
 export function CareerLog({ content, locale }: { content: ExperienceContent; locale: Locale }) {
   const ordered = [...content.entries].sort((a, b) => a.displayOrder - b.displayOrder);
   return <section id="experience" className="career-section" aria-labelledby="experience-heading">
-    <div className="career-heading"><p className="eyebrow">{content.identifier}</p><h2 id="experience-heading">{content.heading}</h2></div>
+    <div className="career-heading" data-reveal><p className="eyebrow">{content.identifier}</p><h2 id="experience-heading">{content.heading}</h2></div>
     <div className="career-body">
-      <p className="section-introduction">{content.introduction}</p>
+      <p className="section-introduction" data-reveal>{content.introduction}</p>
       <div className="career-track"><h3>{content.mainCareer}</h3><ol className="career-list">{ordered.filter(entry => entry.employmentType === "full-time").map(entry => <CareerEntry key={entry.id} entry={entry} labels={content} locale={locale}/>)}</ol></div>
       <div className="career-track parallel-track"><h3>{content.parallelCareer}</h3><p className="overlap-note">{content.overlapNote}</p><ol className="career-list">{ordered.filter(entry => entry.employmentType === "part-time").map(entry => <CareerEntry key={entry.id} entry={entry} labels={content} locale={locale}/>)}</ol></div>
     </div>

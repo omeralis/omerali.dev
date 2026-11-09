@@ -25,7 +25,7 @@ export function Hero({ content, locale, careerStart }: { content: HeroContent; l
       </div>
       <Architecture content={content.architecture}/>
     </section>
-    <dl className="facts">
+    <dl className="facts" data-reveal>
       <div><dt>{content.metrics.since}</dt><dd><time dateTime={careerStart}>{content.metrics.start}</time></dd></div>
       <div><dt>{content.metrics.based}</dt><dd>{content.metrics.location}</dd></div>
       <div><dt>{content.metrics.experience}</dt><dd><bdi>{formatExperience(locale, `${careerStart}-01`)}</bdi></dd></div>
