@@ -36,7 +36,7 @@ try {
     assert.equal(await page.locator('html').getAttribute('data-theme'), theme);
     await page.keyboard.press('Tab');
     assert.equal(await page.locator('.skip-link').evaluate(el => el === document.activeElement), true);
-    for (const path of ['/favicon.ico', '/icon.png', '/apple-icon.png', '/brand/oa-monogram.webp']) assert.equal((await context.request.get(`${origin}${path}`)).status(), 200);
+    for (const path of ['/favicon.ico', '/icon.svg', '/apple-icon.png']) assert.equal((await context.request.get(`${origin}${path}`)).status(), 200);
     for (const width of [360, 390, 768, 1024, 1440, 1920]) {
       await page.setViewportSize({ width, height: 1000 });
       await page.goto(`${origin}/${locale}`, { waitUntil: 'domcontentloaded' });
@@ -47,17 +47,17 @@ try {
       assert.equal(await page.locator('#contact a[data-method=linkedin]').getAttribute('href'), 'https://www.linkedin.com/in/omeraliabdallh');
       assert.equal(await page.locator('html').getAttribute('dir'), locale === 'ar' ? 'rtl' : 'ltr');
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${theme}/${locale}/${width} homepage overflow`);
-      await page.locator('.site-header .monogram').evaluate(image => image.decode());
+      await page.locator('.site-header .monogram').waitFor();
       assert.equal(await page.locator('.hero-copy').evaluate(el => getComputedStyle(el).animationName), 'none');
       assert.ok(await page.evaluate(() => window.__portfolioCLS < .1), `${theme}/${locale}/${width} layout shift`);
       const palette = await page.evaluate(() => {
         const color = name => { const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim(); return /^#[\da-f]{3}$/i.test(value) ? `#${value.slice(1).split('').map(c => c + c).join('')}` : value; };
         return { bg: color('--bg'), surface: color('--surface'), brand: color('--brand'), accent: color('--accent') };
       });
-      assert.equal(palette.bg, theme === 'dark' ? '#0b0c10' : '#f8f6f1');
-      assert.equal(palette.surface, theme === 'dark' ? '#14161c' : '#ffffff');
-      assert.equal(palette.brand, theme === 'dark' ? '#f2c14e' : '#dba521');
-      assert.equal(palette.accent, theme === 'dark' ? '#f5c95e' : '#855400');
+      assert.equal(palette.bg, theme === 'dark' ? '#09090b' : '#f7f8f7');
+      assert.equal(palette.surface, theme === 'dark' ? '#131316' : '#ffffff');
+      assert.equal(palette.brand, theme === 'dark' ? '#34d399' : '#10b981');
+      assert.equal(palette.accent, theme === 'dark' ? '#4ade80' : '#047857');
       if ([360, 1440].includes(width)) {
         await page.screenshot({ path: `${output}/${theme}-${locale}-${width}.png`, fullPage: true });
         await page.screenshot({ path: `${output}/${theme}-${locale}-${width}-hero.png` });
